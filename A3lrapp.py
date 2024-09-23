@@ -22,26 +22,27 @@ def perform_regression(X, y):
 
 def calculate_confidence_interval(model, X, y, X_pred, confidence=0.95):
     n = len(X)
-    m = X.shape[1]
-    dof = n - m - 1
-    t_value = stats.t.ppf((1 + confidence) / 2, dof)
+    p = X.shape[1]
+    dof = n - p - 1
     
     # Calculate MSE
     y_pred = model.predict(X)
     mse = np.sum((y - y_pred)**2) / dof
     
     # Calculate standard error
-    X_mean_centered = X - X.mean(axis=0)
-    X_t_X_inv = np.linalg.inv(X_mean_centered.T.dot(X_mean_centered))
+    X_mean_centered = X - np.mean(X, axis=0)
+    cov_matrix = np.linalg.inv(X_mean_centered.T.dot(X_mean_centered))
+    std_error = np.sqrt(mse * np.sum(X_pred.dot(cov_matrix) * X_pred, axis=1))
     
-    var_est = mse * np.diag(X_pred.dot(X_t_X_inv).dot(X_pred.T))
-    se_est = np.sqrt(var_est)
+    # Calculate t-value
+    t_value = stats.t.ppf((1 + confidence) / 2, dof)
     
-    # Calculate confidence intervals
-    ci_lower = model.predict(X_pred) - t_value * se_est
-    ci_upper = model.predict(X_pred) + t_value * se_est
+    # Calculate prediction and confidence interval
+    y_pred = model.predict(X_pred)
+    ci_lower = y_pred - t_value * std_error
+    ci_upper = y_pred + t_value * std_error
     
-    return ci_lower, ci_upper
+    return y_pred[0], ci_lower[0], ci_upper[0]
 
 def main():
     st.title("Multiple Linear Regression App")
@@ -95,11 +96,10 @@ def main():
                 point_estimate_inputs.append(value)
 
             X_pred = np.array(point_estimate_inputs).reshape(1, -1)
-            point_estimate = model.predict(X_pred)[0]
-            ci_lower, ci_upper = calculate_confidence_interval(model, X_train, y_train, X_pred)
+            point_estimate, ci_lower, ci_upper = calculate_confidence_interval(model, X_train, y_train, X_pred)
 
             st.write(f"Point Estimate: {point_estimate:.4f}")
-            st.write(f"95% Confidence Interval: ({ci_lower[0]:.4f}, {ci_upper[0]:.4f})")
+            st.write(f"95% Confidence Interval: ({ci_lower:.4f}, {ci_upper:.4f})")
 
             # Plot results (for single input variable only)
             if len(x_cols) == 1:
