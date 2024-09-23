@@ -80,9 +80,11 @@ def main():
 
                 st.subheader("Regression Results")
                 
-                # Display summary statistics
+                # Display summary statistics with 95% CI
                 st.write("Model Summary:")
-                st.write(model.summary())
+                summary = model.summary()
+                summary.tables[1].data[3] = [f"[{v[0]:.4f}, {v[1]:.4f}]" for v in model.conf_int(alpha=0.05).values]
+                st.write(summary)
                 
                 # Display coefficient statistics in a more readable format
                 st.write("Coefficient Statistics:")
@@ -90,7 +92,9 @@ def main():
                     'Coefficient': model.params,
                     'Std Error': model.bse,
                     't-statistic': model.tvalues,
-                    'p-value': model.pvalues
+                    'p-value': model.pvalues,
+                    '95% CI Lower': model.conf_int(alpha=0.05)[0],
+                    '95% CI Upper': model.conf_int(alpha=0.05)[1]
                 })
                 st.write(coef_df)
 
