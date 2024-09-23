@@ -80,17 +80,21 @@ def main():
 
                 st.subheader("Regression Results")
                 
-                # Display summary statistics
+                # Display summary statistics with 95% CI
                 st.write("Model Summary:")
-                st.write(model.summary())
+                summary = model.summary()
+                st.text(str(summary))
                 
                 # Display coefficient statistics in a more readable format
                 st.write("Coefficient Statistics:")
+                conf_int = model.conf_int(alpha=0.05)
                 coef_df = pd.DataFrame({
                     'Coefficient': model.params,
                     'Std Error': model.bse,
                     't-statistic': model.tvalues,
-                    'p-value': model.pvalues
+                    'p-value': model.pvalues,
+                    '95% CI Lower': conf_int[0],
+                    '95% CI Upper': conf_int[1]
                 })
                 st.write(coef_df)
 
