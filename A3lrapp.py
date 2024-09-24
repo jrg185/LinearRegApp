@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 import matplotlib.pyplot as plt
+import seaborn as sns
 from scipy import stats
 import warnings
 import statsmodels.api as sm
@@ -59,6 +60,13 @@ def main():
         df = load_data(uploaded_file)
         st.write("Data Preview:")
         st.write(df.head())
+
+        # Correlation matrix
+        st.subheader("Correlation Matrix")
+        corr = df.corr()
+        fig, ax = plt.subplots(figsize=(10, 8))
+        sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax)
+        st.pyplot(fig)
 
         # Column selection
         st.subheader("Select Columns for Regression")
