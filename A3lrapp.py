@@ -52,6 +52,29 @@ def calculate_confidence_interval(model, X_pred, confidence=0.95):
 def main():
     st.title("Multiple Linear Regression App")
 
+    # Data format information
+    st.subheader("Data Format Requirements")
+    st.write("""
+    Your input file should be either a CSV or Excel file (.csv or .xlsx) with the following characteristics:
+    - Each column should represent a variable
+    - The first row should contain column headers (variable names)
+    - All data should be numerical (except headers)
+    - No missing values
+    """)
+
+    # Example data visualization
+    st.subheader("Example Data Format")
+    example_data = pd.DataFrame({
+        'Size_sqft': [1500, 2000, 1800, 2200, 1600],
+        'Bedrooms': [3, 4, 3, 4, 3],
+        'Age_years': [10, 15, 5, 20, 8],
+        'Price': [300000, 400000, 350000, 450000, 320000]
+    })
+    st.write("Example dataset structure:")
+    st.write(example_data)
+
+    st.markdown("---")
+
     # File upload
     uploaded_file = st.file_uploader("Choose a CSV or Excel file", type=["csv", "xlsx"])
 
@@ -60,6 +83,21 @@ def main():
         df = load_data(uploaded_file)
         st.write("Data Preview:")
         st.write(df.head())
+
+        # Summary Statistics
+        st.subheader("Summary Statistics")
+        summary_stats = df.describe()
+        st.write(summary_stats)
+        
+        # Additional Statistics
+        st.write("Additional Statistics:")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write("Skewness:")
+            st.write(df.skew())
+        with col2:
+            st.write("Kurtosis:")
+            st.write(df.kurtosis())
 
         # Correlation matrix
         st.subheader("Correlation Matrix")
